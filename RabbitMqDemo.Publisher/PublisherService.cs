@@ -26,7 +26,7 @@ public class PublisherService(IOptions<PublisherSettings> options, IConnection c
 
     private void Publish(object? state)
     {
-        var players = Enumerable.Range(0, 5).Select(i => new PlayerPositioning
+        var players = Enumerable.Range(1, 5).Select(i => new PlayerPositioning
         {
             Id = i,
             Latitude = new decimal(Random.Shared.NextDouble()),
