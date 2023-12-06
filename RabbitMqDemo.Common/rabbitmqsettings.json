@@ -1,0 +1,13 @@
+{
+  "RabbitMq" : {
+    "Username" : "guest",
+    "Password" : "guest",
+    "VirtualHost" : "/",
+    "MaxInitialConnectionRetries" : 5,
+    "Endpoints" : [
+      "amqp://localhost:5673",
+      "amqp://localhost:5674",
+      "amqp://localhost:5675"
+    ]
+  }
+}
