@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using RabbitMQ.Client;
 using RabbitMqDemo.Manager.Models;
 
@@ -9,18 +8,17 @@ namespace RabbitMqDemo.Manager;
 
 public class ManagerService(
     IConnection connection,
+    IOptions<ManagerSettings> managerOptions,
     IOptions<List<ConsumerAccessSettings>> consumerAccessOptions,
     IOptions<List<GameSettings>> gameOptions)
 {
-    private const string MainPositionalExchange = "main.positioning";
-
     private static readonly IDictionary<string, object> DefaultQueueArguments = new Dictionary<string, object>
         { { "x-queue-type", "quorum" }, };
 
     public Task SetupAsync()
     {
         using var model = connection.CreateModel();
-
+        
         SetupBasic(model);
         SetupExchanges(model);
         SetupQueues(model);
@@ -30,7 +28,7 @@ public class ManagerService(
         return Task.CompletedTask;
     }
 
-    private void SetupBasic(IModel model)
+    private static void SetupBasic(IModel model)
     {
         model.ExchangeDeclare("basic", ExchangeType.Direct, true);
         model.QueueDeclare("basic", true, false, false, DefaultQueueArguments);
@@ -39,7 +37,7 @@ public class ManagerService(
 
     private void SetupExchanges(IModel model)
     {
-        model.ExchangeDeclare(MainPositionalExchange, ExchangeType.Topic, true);
+        model.ExchangeDeclare(managerOptions.Value.PositioningExchangeName, ExchangeType.Topic, true);
 
         foreach (var consumer in consumerAccessOptions.Value.GroupBy(s => s.Username))
         {
@@ -55,8 +53,9 @@ public class ManagerService(
 
             foreach (var accessSettings in consumer)
             {
-                model.ExchangeBind(consumerExchangeName, MainPositionalExchange,
-                    CreateConsumerAccessRoutingKey(accessSettings));
+                var routingKey = CreateConsumerAccessRoutingKey(accessSettings);
+
+                model.ExchangeBind(consumerExchangeName, managerOptions.Value.PositioningExchangeName, routingKey);
             }
         }
     }

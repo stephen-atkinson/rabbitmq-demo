@@ -9,12 +9,16 @@ public class PublisherService(IOptions<PublisherSettings> options, IConnection c
 {
     private Timer? _timer;
     private IModel? _model;
+    private IBasicProperties? _basicProperties;
 
     public Task StartAsync(CancellationToken stoppingToken)
     {
         var period = TimeSpan.FromMilliseconds(1000d / options.Value.Fps);
         
         _model = connection.CreateModel();
+        _basicProperties = _model.CreateBasicProperties();
+        _basicProperties.ContentType = "application/json";
+        
         _timer = new Timer(Publish, null, TimeSpan.Zero, period);
 
         return Task.CompletedTask;
@@ -37,7 +41,7 @@ public class PublisherService(IOptions<PublisherSettings> options, IConnection c
         
         var messageBodyBytes = JsonSerializer.SerializeToUtf8Bytes(message);
         
-        _model!.BasicPublish(options.Value.Exchange, options.Value.RoutingKey, null, messageBodyBytes);
+        _model!.BasicPublish(options.Value.Exchange, options.Value.RoutingKey, _basicProperties, messageBodyBytes);
     }
 
     public Task StopAsync(CancellationToken stoppingToken)

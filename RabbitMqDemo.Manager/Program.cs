@@ -14,6 +14,7 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 var serviceProvider = new ServiceCollection()
+    .Configure<ManagerSettings>(configuration.GetSection("Manager"))
     .Configure<List<ConsumerAccessSettings>>(configuration.GetSection("ConsumerAccess"))
     .Configure<List<GameSettings>>(configuration.GetSection("Games"))
     .AddLogging()
