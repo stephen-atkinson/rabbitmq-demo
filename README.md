@@ -14,7 +14,7 @@ AMQP Ports - 5673, 5674 and 5675\
 Management Portal URLs - \
 Broker 1 - http://localhost:15673 \
 Broker 2 - http://localhost:15674 \
-Broker 3 - http://localhost:15675 \
+Broker 3 - http://localhost:15675
 
 - **Create Cluster** - Connects the 3 brokers together to form a cluster
 - **Remove Cluster** - Disconnects the 3 brokers from the cluster
